@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Article;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,6 +14,25 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// request()->server->add(['REMOTE_ADDR'=>'127.0.0.4 ']);
+
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/', function () {
+    return view('articles.index', [
+        'articles' => Article::query()
+            ->orderBy('view_count', 'desc')
+            ->get(),
+    ]);
+});
+
+Route::get('/articles/{article}', function (Article $article) {
+    $article->logView();
+
+    return view('articles.show', [
+        'article' => $article
+    ]);
+})->name('articles.show');
+
