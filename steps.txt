@@ -1,0 +1,65 @@
+Steps of creating unique views using redis :
+
+1 - New laravel project setup and install predis
+REDIS_CLIENT=predis
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+REDIS_DB=0
+REDIS_CACHE_DB=1
+
+2- Set this in env .
+
+3- Make model with column from whom we want to get unique views
+
+4-setup redis server on ubuntu .
+
+5-In model make a trait where you need to make functions where you have to setViews in redis and getViews from redis
+
+
+<?php
+
+  namespace App\Models\Traits;
+
+  use Illuminate\Support\Facades\Redis;
+
+  trait LogsViews
+	{
+    public function logView()
+    {
+        Redis::pfadd(sprintf('%s.%s.views', $this->getTable(), $this->id), 			[request()->ip()]);
+    }
+
+    public function getViewCount()
+    {
+        return Redis::pfcount(sprintf('%s.%s.views', $this->getTable(), $this-			>id));
+    }
+}
+
+6-Make an artisan command using php artisan make:command SyncModelViewCount.php
+
+7-In command in handle function :
+	 // fetch all the ids
+        // look up count with redis and patch up with our database
+        // batch update back in db
+
+8-iterate through all models and update count you get from redis
+	 collect($this->models)->each(function ($model) {
+            $views = $model::select('id')->pluck('id')->map(function ($id) use 		($model) {
+                return ['id' => $id, 'view_count' => Redis::pfcount(sprintf('%s.		%s.views', (new $model)->getTable(), $id))];
+         	   })
+                ->toArray();
+
+            batch()->update(new $model(), $views, 'id');
+        });
+
+9-Install batch package for updating data in database
+https://github.com/mavinoo/laravelBatch
+
+10-make task schedule in console->kernal.php where unique counts update hourly
+by scheduling command hourly
+
+
+
+
+
