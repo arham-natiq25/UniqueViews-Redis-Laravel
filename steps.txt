@@ -61,5 +61,4 @@ by scheduling command hourly
 
 
 
-
-
+11- for make schedule work run commnad php artisan schedule:work

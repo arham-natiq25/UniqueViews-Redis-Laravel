@@ -16,9 +16,9 @@ use Illuminate\Support\Facades\Route;
 
 // request()->server->add(['REMOTE_ADDR'=>'127.0.0.4 ']);
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 
 Route::get('/', function () {
     return view('articles.index', [
